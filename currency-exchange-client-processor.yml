@@ -1,0 +1,106 @@
+## docker-compose 
+version: "3.7"
+
+services:
+  
+  
+
+
+
+ 
+  ####################### 
+  # RABBIT MQ Messaging #
+  #######################
+
+  rabbitmq:
+    image: rabbitmq:3.5.3-management
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 120s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    ports:
+      - 15672:15672
+      - 5672:5672
+    environment:
+      - RABBITMQ_DEFAULT_USER=think 
+      - RABBITMQ_DEFAULT_PASS=microservices 
+    networks:
+      - currency-exchange-network
+    
+  ##############################################################
+
+
+  
+
+
+  ###############################
+  # currency-exchange-processor #
+  ###############################
+
+  currency-exchange-processor:
+    #image: thinkmicroservices/outbound-email-service:latest
+    image: currency-exchange-processor
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
+    environment: 
+     # - spring.main.banner-mode="off"
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - logging.level.com.thinkmicroservices=TRACE
+      - spring.profiles.active=dev, swagger
+      - currency.exchange.api.key=d4f434b896c969e2e3681bca 
+       
+
+      
+    networks:
+      - currency-exchange-network
+    ports:
+      - 8081:8080
+
+    depends_on:
+      - "rabbitmq"
+           
+   
+  ############################
+  # currency-exchange-client #
+  ############################
+
+  currency-exchange-client:
+    #image: thinkmicroservices/outbound-email-service:latest
+    image: currency-exchange-client
+    
+    environment: 
+     # - spring.main.banner-mode="off"
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - logging.level.com.thinkmicroservices=TRACE
+      - spring.profiles.active=dev, swagger
+      
+       
+
+      
+    networks:
+      - currency-exchange-network
+    ports:
+      - 8080:8080
+
+    depends_on:
+      - "currency-exchange-processor"
+           
+
+
+##################
+# define network #
+##################
+networks:
+   currency-exchange-network:
+ 
+     
+ 
+
+    
+

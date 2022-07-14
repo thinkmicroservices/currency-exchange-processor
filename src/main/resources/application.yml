@@ -1,0 +1,47 @@
+server:
+  port: 8080
+  
+info:
+  app:
+    name: Currency Exchange Request Processor
+    description: performs currency exchange 
+    version: 1.0.0
+
+currency:
+  exchange:
+    api:
+      url: https://v6.exchangerate-api.com/v6/%s/latest/%s
+      key: <API-KEY>
+
+ 
+        
+spring:
+  application:
+    name: Currency Exchange Processor
+    
+   
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: think
+    password: microservices
+    automaticRecoveryEnabled: true
+    
+    publisher-confirm-type: correlated
+    publisher-returns: true
+ 
+ 
+  
+
+ # swagger-ui custom path to swagger ui
+springdoc:
+  swagger-ui:
+    path: /swagger/ui.html 
+  
+  # include actuator in swagger ui
+  #show-actuator: true   
+  packagesToScan: com.thinkmicroservices.currency.exchange.client
+  pathsToMatch : /api/**
+
+
+    
